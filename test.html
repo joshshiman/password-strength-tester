@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Entropy Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin: 0 0 20px 0; /* Add margin at the bottom of the h2 element */
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0; /* Add margin to create space between elements */
+            width: 100%;
+        }
+        .result {
+            margin-top: 10px;
+        }
+        .entropy-label {
+            font-weight: bold;
+        }
+        .very-weak {
+            color: darkred;
+        }
+        .weak {
+            color: darkorange;
+        }
+        .decent {
+            color: goldenrod;
+        }
+        .strong {
+            color: green;
+        }
+        .very-strong {
+            color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Password Entropy Calculator</h2>
+        <input type="text" id="password" placeholder="Enter your password" oninput="calculateEntropy()">
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function getR(userPassword) {
+            const lower = "abcdefghijklmnopqrstuvwxyz";
+            const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const digits = "0123456789";
+            const symbols = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/~`";
+
+            let hasLower = false;
+            let hasUpper = false;
+            let hasDigits = false;
+            let hasSymbols = false;
+
+            for (let char of userPassword) {
+                if (lower.includes(char)) hasLower = true;
+                if (upper.includes(char)) hasUpper = true;
+                if (digits.includes(char)) hasDigits = true;
+                if (symbols.includes(char)) hasSymbols = true;
+            }
+
+            let R = 0;
+            if (hasLower) R += 26;
+            if (hasUpper) R += 26;
+            if (hasDigits) R += 10;
+            if (hasSymbols) R += 32;
+
+            return R;
+        }
+
+        function getEntropyLabel(E) {
+            let label = "";
+            let className = "";
+
+            if (E < 30) {
+                label = "Very Weak";
+                className = "very-weak";
+            } else if (E < 50) {
+                label = "Weak";
+                className = "weak";
+            } else if (E < 60) {
+                label = "Decent";
+                className = "decent";
+            } else if (E < 80) {
+                label = "Strong";
+                className = "strong";
+            } else {
+                label = "Very Strong";
+                className = "very-strong";
+            }
+
+            return { label, className };
+        }
+
+        function calculateEntropy() {
+            const password = document.getElementById('password').value;
+            const L = password.length;
+            if (L === 0) {
+                document.getElementById('result').innerHTML = "";
+                return;
+            }
+            const R = getR(password);
+            const E = L * Math.log2(R);
+
+            const { label, className } = getEntropyLabel(E);
+
+            document.getElementById('result').innerHTML = `
+                <p>Entropy (E): ${E.toFixed(2)} bits</p>
+                <p class="entropy-label ${className}">Strength: ${label}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
