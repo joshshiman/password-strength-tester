@@ -17,6 +17,7 @@
         .container {
             background-color: white;
             padding: 20px;
+            padding-right: 40px; /* Added extra padding to the right */
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
@@ -26,7 +27,8 @@
         input {
             padding: 10px;
             margin: 10px 0; /* Add margin to create space between elements */
-            width: 100%;
+            width: calc(100% - 20px); /* Adjust width to account for padding */
+            box-sizing: border-box; /* Ensure padding is included in the width */
         }
         .result {
             margin-top: 10px;
