@@ -17,24 +17,34 @@
         .container {
             background-color: white;
             padding: 20px;
-            width: 400px; /* Increased width of the container */
+            width: 400px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h2 {
-            margin: 0 0 20px 0; /* Add margin at the bottom of the h2 element */
+            margin: 0 0 10px 0;
+        }
+        .description {
+            margin: 0 0 20px 0;
+            font-size: 14px;
+            color: #555;
         }
         input {
             padding: 10px;
-            margin: 10px 0; /* Add margin to create space between elements */
-            width: calc(100% - 20px); /* Adjust width to account for padding */
-            box-sizing: border-box; /* Ensure padding is included in the width */
+            margin: 10px 0;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
         }
         .result {
             margin-top: 10px;
         }
         .entropy-label {
             font-weight: bold;
+        }
+        .feedback {
+            margin-top: 10px;
+            color: #555;
+            font-size: 14px;
         }
         .very-weak {
             color: darkred;
@@ -56,8 +66,10 @@
 <body>
     <div class="container">
         <h2>Password Entropy Calculator</h2>
+        <p class="description">Password entropy measures the strength of a password by calculating its unpredictability. Higher entropy indicates a stronger password.</p>
         <input type="text" id="password" placeholder="Enter your password" oninput="calculateEntropy()">
         <div class="result" id="result"></div>
+        <div class="feedback" id="feedback"></div>
     </div>
 
     <script>
@@ -65,7 +77,7 @@
             const lower = "abcdefghijklmnopqrstuvwxyz";
             const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const digits = "0123456789";
-            const symbols = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/~`";
+            const symbols = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/~`"; // Standard set of symbols
 
             let hasLower = false;
             let hasUpper = false;
@@ -83,9 +95,15 @@
             if (hasLower) R += 26;
             if (hasUpper) R += 26;
             if (hasDigits) R += 10;
-            if (hasSymbols) R += 32;
+            if (hasSymbols) R += symbols.length;
 
-            return R;
+            let feedback = [];
+            if (!hasLower) feedback.push("Add lowercase letters");
+            if (!hasUpper) feedback.push("Add uppercase letters");
+            if (!hasDigits) feedback.push("Add numerical characters");
+            if (!hasSymbols) feedback.push("Add special characters");
+
+            return { R, feedback };
         }
 
         function getEntropyLabel(E) {
@@ -117,17 +135,28 @@
             const L = password.length;
             if (L === 0) {
                 document.getElementById('result').innerHTML = "";
+                document.getElementById('feedback').innerHTML = "";
                 return;
             }
-            const R = getR(password);
+            const { R, feedback } = getR(password);
             const E = L * Math.log2(R);
 
             const { label, className } = getEntropyLabel(E);
 
             document.getElementById('result').innerHTML = `
-                <p>Entropy (E): ${E.toFixed(2)} bits</p>
                 <p class="entropy-label ${className}">Strength: ${label}</p>
+                <p>Entropy (E): ${E.toFixed(2)} bits</p>
             `;
+
+            if (L < 12) {
+                feedback.push("Increase the length to at least 12 characters");
+            }
+
+            if (feedback.length > 0) {
+                document.getElementById('feedback').innerHTML = `<p>Suggestions to improve:</p><ul>${feedback.map(item => `<li>${item}</li>`).join('')}</ul>`;
+            } else {
+                document.getElementById('feedback').innerHTML = "";
+            }
         }
     </script>
 </body>
