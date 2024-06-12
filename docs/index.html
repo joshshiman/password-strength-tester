@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Entropy Calculator</title>
+    <title>Password Strength Tester</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,11 +29,20 @@
             font-size: 14px;
             color: #555;
         }
-        input {
+        input[type="password"], input[type="text"] {
             padding: 10px;
             margin: 10px 0;
-            width: calc(100% - 20px);
+            width: calc(100% - 22px);
             box-sizing: border-box;
+        }
+        .show-password {
+            margin-top: 10px;
+        }
+        .result-container {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
         }
         .result {
             margin-top: 10px;
@@ -61,15 +70,25 @@
         .very-strong {
             color: darkgreen;
         }
+        .note {
+            font-size: 12px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Password Entropy Calculator</h2>
         <p class="description">Password entropy measures the strength of a password by calculating its unpredictability. Higher entropy indicates a stronger password.</p>
-        <input type="text" id="password" placeholder="Enter your password" oninput="calculateEntropy()">
-        <div class="result" id="result"></div>
-        <div class="feedback" id="feedback"></div>
+        <input type="password" id="password" placeholder="Enter your password" oninput="calculateEntropy()">
+        <div class="show-password">
+            <input type="checkbox" id="togglePassword" onclick="togglePasswordVisibility()"> Show Password
+        </div>
+        <div class="result-container" id="result-container" style="display: none;">
+            <div class="result" id="result"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        <p class="note">We will never use or save your password.</p>
     </div>
 
     <script>
@@ -134,8 +153,7 @@
             const password = document.getElementById('password').value;
             const L = password.length;
             if (L === 0) {
-                document.getElementById('result').innerHTML = "";
-                document.getElementById('feedback').innerHTML = "";
+                document.getElementById('result-container').style.display = 'none';
                 return;
             }
             const { R, feedback } = getR(password);
@@ -143,6 +161,7 @@
 
             const { label, className } = getEntropyLabel(E);
 
+            document.getElementById('result-container').style.display = 'block';
             document.getElementById('result').innerHTML = `
                 <p class="entropy-label ${className}">Strength: ${label}</p>
                 <p>Entropy (E): ${E.toFixed(2)} bits</p>
@@ -156,6 +175,16 @@
                 document.getElementById('feedback').innerHTML = `<p>Suggestions to improve:</p><ul>${feedback.map(item => `<li>${item}</li>`).join('')}</ul>`;
             } else {
                 document.getElementById('feedback').innerHTML = "";
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggle = document.getElementById('togglePassword');
+            if (toggle.checked) {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
             }
         }
     </script>
